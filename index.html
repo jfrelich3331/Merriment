@@ -13,10 +13,10 @@
         <img width="250" src="https://merrimentaba.com/wp-content/uploads/2023/10/Merriment-Horizontal-Logo.svg" alt="Merriment ABA" />
         <h1>Merriment Business Dashboard</h1>
 
-        <div style="text-align: center">
-          <div style="display: inline-flex; background-color: #ddd; border-radius: 6px; padding: 4px">
-            <button id="fullCapacityBtn" class="mode-btn active" onclick="switchMode('fullCapacity')" style="padding: 8px 16px; border: none; border-radius: 4px; background-color: #3b82f6; color: white; cursor: pointer; font-weight: 500">Capacity Mode</button>
-            <button id="packageModeBtn" class="mode-btn" onclick="switchMode('package')" style="padding: 8px 16px; border: none; border-radius: 4px; background-color: transparent; color: #374151; cursor: pointer; font-weight: 500">Sales Mode</button>
+        <div class="header-center">
+          <div class="mode-btn-container">
+            <button id="fullCapacityBtn" class="mode-btn active" onclick="switchMode('fullCapacity')">Capacity Mode</button>
+            <button id="packageModeBtn" class="mode-btn" onclick="switchMode('package')">Sales Mode</button>
           </div>
 
           <button class="config-button" onclick="openPackageConfig()">Configure Services & Packages</button>
@@ -43,14 +43,14 @@
             <div class="input-wrapper">
               <div class="input-group" class="input-hours">
                 <label>Weekly Capacity Hours</label>
-                <input type="text" id="hoursCapacity" value="40" min="0" max="80" class="readonly-input" />
+                <input type="text" id="hoursCapacity" value="40" min="0" max="80" />
               </div>
 
               <div id="merriment-hours-container">
                 <div class="input-group" class="input-hours">
                   <label>Weekly W2 Hours</label>
                   <input type="text" id="lighthouseHours" value="0" min="0" max="40" />
-                  <div class="small-text" style="display: none">Max 40 hours (salary calculated proportionally)</div>
+                  <div class="small-text hidden">Max 40 hours (salary calculated proportionally)</div>
                 </div>
                 <div class="input-group" class="input-hours">
                   <label>Merriment (Total)</label>
@@ -96,39 +96,18 @@
           <div class="input-section billable-section">
             <div class="input-group">
               <h3>Billable Percentage</h3>
-              <div class="radio-group">
-                <label class="radio-option">
-                  <input type="radio" name="billableRate" value="0.3" />
-                  <span>30%</span>
-                </label>
-                <label class="radio-option">
-                  <input type="radio" name="billableRate" value="0.4" />
-                  <span>40%</span>
-                </label>
-                <label class="radio-option">
-                  <input type="radio" name="billableRate" value="0.5" />
+              <div class="slider-container">
+                <input type="range" id="billableRateSlider" name="billableRate" min="0" max="100" value="80" step="5" />
+                <div class="slider-labels">
+                  <span>0%</span>
+                  <span>25%</span>
                   <span>50%</span>
-                </label>
-                <label class="radio-option">
-                  <input type="radio" name="billableRate" value="0.6" />
-                  <span>60%</span>
-                </label>
-                <label class="radio-option">
-                  <input type="radio" name="billableRate" value="0.7" />
-                  <span>70%</span>
-                </label>
-                <label class="radio-option">
-                  <input type="radio" name="billableRate" value="0.8" checked />
-                  <span>80% </span>
-                </label>
-                <label class="radio-option">
-                  <input type="radio" name="billableRate" value="0.9" />
-                  <span>90%</span>
-                </label>
-                <label class="radio-option">
-                  <input type="radio" name="billableRate" value="1" />
+                  <span>75%</span>
                   <span>100%</span>
-                </label>
+                </div>
+                <div class="slider-value">
+                  <span id="billableRateValue">80%</span>
+                </div>
               </div>
             </div>
           </div>
@@ -168,30 +147,25 @@
                 </label>
               </div>
             </div>
-            <div class="input-group employee-hourly-rate" style="display: none">
+            <div class="input-group employee-hourly-rate hidden">
               <label>Employee Hourly Rate</label>
               <input type="number" id="employeeRate" value="35" min="20" step="1" />
             </div>
 
-            <div class="input-group employee-billable" style="display: none">
+            <div class="input-group employee-billable hidden">
               <label>Employee Billable %</label>
-              <div class="radio-group">
-                <label class="radio-option">
-                  <input type="radio" name="employeeBillable" value="0.5" />
-                  <span>50% - New Employee</span>
-                </label>
-                <label class="radio-option">
-                  <input type="radio" name="employeeBillable" value="0.75" />
-                  <span>75% - Experienced</span>
-                </label>
-                <label class="radio-option">
-                  <input type="radio" name="employeeBillable" value="0.85" checked />
-                  <span>85% - Average</span>
-                </label>
-                <label class="radio-option">
-                  <input type="radio" name="employeeBillable" value="1.0" />
-                  <span>100% - Optimal</span>
-                </label>
+              <div class="slider-container">
+                <input type="range" id="employeeBillableSlider" name="employeeBillable" min="0" max="100" value="85" step="5" />
+                <div class="slider-labels">
+                  <span>0%</span>
+                  <span>25%</span>
+                  <span>50%</span>
+                  <span>75%</span>
+                  <span>100%</span>
+                </div>
+                <div class="slider-value">
+                  <span id="employeeBillableValue">85%</span>
+                </div>
               </div>
             </div>
           </div>
@@ -202,12 +176,12 @@
             <div id="goalSection">
               <div class="progress-container">
                 <h3>Goal Tracker</h3>
-                <p style="margin-bottom: 8px; font-size: 14px">Goal: Replace W2 salary with Merriment Income</p>
+                <p class="goal-description">Goal: Replace W2 salary with Merriment Income</p>
                 <div class="progress-bar">
-                  <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                  <div class="progress-fill progress-fill-initial" id="progressFill"></div>
                 </div>
                 <div class="progress-text">
-                  <span><span id="progressCurrent">$0</span>/$85,000</span>
+                  <span><span id="progressCurrent">$0</span>/85K</span>
                   <span id="progressPercentage">0%</span>
                 </div>
               </div>
@@ -216,30 +190,30 @@
 
           <div id="capacity-tab">
             <!-- Add this HTML above your hoursNeededWrapper div -->
-            <div id="packageGoalMetrics">
+            <div class="packageGoalMetrics">
               <div>
                 <!-- Average Package Price -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
-                  <span style="font-weight: 500; color: #374151; font-size: 13px">Average Monthly Package Price:</span>
-                  <span id="averagePackagePrice" style="font-weight: 600; color: #1f2937">$0</span>
+                <div class="metric-row capacity-avg-package-price">
+                  <span class="metric-row-label">Average Monthly Package Price:</span>
+                  <span id="averagePackagePrice" class="metric-row-value-primary">$0</span>
                 </div>
 
                 <!-- Packages Needed for Goal -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
-                  <span style="font-weight: 500; color: #374151; font-size: 13px">Average Clients needed for $85k:</span>
-                  <span id="packagesNeededGoal" style="font-weight: 600">0 clients</span>
+                <div class="metric-row capacity-clients-needed-goal">
+                  <span class="metric-row-label">Average Clients needed for $85k:</span>
+                  <span id="packagesNeededGoal" class="metric-row-value">0 clients</span>
                 </div>
 
                 <!-- Packages Needed for Goal -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
-                  <span style="font-weight: 500; color: #374151; font-size: 13px">Billable hrs/week needed:</span>
+                <div class="metric-row capacity-billable-hours-needed">
+                  <span class="metric-row-label">Billable hrs/week needed:</span>
                   <span id="hoursNeeded">16.7 hrs</span>
                 </div>
 
                 <!-- Packages Needed for Billable Hour Capacity -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
-                  <span style="font-weight: 500; color: #374151; font-size: 13px">Clients needed for selections:</span>
-                  <span id="packagesNeededCapacity" style="font-weight: 600">0 clients</span>
+                <div class="metric-row capacity-clients-needed-selection">
+                  <span class="metric-row-label">Clients needed for selections:</span>
+                  <span id="packagesNeededCapacity" class="metric-row-value">0 clients</span>
                 </div>
               </div>
             </div>
@@ -275,23 +249,23 @@
           </div>
 
           <div id="package-tab">
-            <div id="packageGoalMetrics">
+            <div class="packageGoalMetrics">
               <div>
                 <!-- Average Package Price -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
-                  <span style="font-weight: 500; color: #374151; font-size: 13px">Average Monthly Package Price:</span>
-                  <span id="averagePackagePrice2" style="font-weight: 600; color: #1f2937">$0</span>
+                <div class="metric-row package-avg-package-price">
+                  <span class="metric-row-label">Average Monthly Package Price:</span>
+                  <span id="averagePackagePrice2" class="metric-row-value-primary">$0</span>
                 </div>
 
                 <!-- Packages Needed for Goal -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
-                  <span style="font-weight: 500; color: #374151; font-size: 13px">Average sales needed for $85k goal:</span>
-                  <span id="packagesNeededGoal2" style="font-weight: 600">0 clients</span>
+                <div class="metric-row package-sales-needed-goal">
+                  <span class="metric-row-label">Average sales needed for $85k goal:</span>
+                  <span id="packagesNeededGoal2" class="metric-row-value">0 clients</span>
                 </div>
 
                 <!-- Packages Needed for Goal -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
-                  <span style="font-weight: 500; color: #374151; font-size: 13px">Billable hrs/week needed:</span>
+                <div class="metric-row package-billable-hours-needed">
+                  <span class="metric-row-label">Billable hrs/week needed:</span>
                   <span id="hoursNeeded2">16.7 hrs</span>
                 </div>
               </div>
@@ -351,7 +325,7 @@
       </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script-original.js"></script>
   </body>
 </html>
->>>>>>> 75e5e4f (jason 1st push)
+

@@ -452,11 +452,9 @@ function updatePackageSalesInputs() {
 
 function getInputValues() {
   try {
-    const $billableRateRadio = $('input[name="billableRate"]:checked');
-    const billableRate = $billableRateRadio.length ? parseFloat($billableRateRadio.val()) : 0.8;
+    const billableRate = parseFloat($('#billableRateSlider').val()) / 100 || 0.8;
 
-    const $employeeBillableRadio = $('input[name="employeeBillable"]:checked');
-const employeeBillable = $employeeBillableRadio.length ? parseFloat($employeeBillableRadio.val()) : 0.85;
+    const employeeBillable = parseFloat($('#employeeBillableSlider').val()) / 100 || 0.85;
 
     const safeGetValue = (id, defaultValue = 0) => {
       const $element = $(`#${id}`);
@@ -515,8 +513,7 @@ function validateHours() {
     const lighthouseHours = parseFloat($("#lighthouseHours").val()) || 0;
     const reganBillableHours = parseFloat($("#reganBillableHours").val()) || 0;
     
-    const $billableRateRadio = $('input[name="billableRate"]:checked');
-    const billableRate = $billableRateRadio.length ? parseFloat($billableRateRadio.val()) : 0.8;
+    const billableRate = parseFloat($('#billableRateSlider').val()) / 100 || 0.8;
     
     let reganNonBillableHours = 0;
     if (billableRate > 0) {
@@ -724,12 +721,11 @@ function updateMetrics() {
     const $reganMetricsEl = $("#reganMetrics");
     if ($reganMetricsEl.length) {
       const reganMetricsData = {
-        "Billable Hours/Week": safeToFixed(reganBillableHours, 1),
         "Total Hours/Week": Math.round(safeNumber(reganTotalHours, 0)),
+        "Billable Hours/Week": reganBillableHours % 1 === 0 ? Math.round(reganBillableHours) : safeToFixed(reganBillableHours, 1),
         "Hourly Rate": `$${Math.round(safeNumber(reganHourlyRate, 0))}`,
         "Effective Hourly Rate": `$${Math.round(safeNumber(reganEffectiveRate, 0))}`,
-        "Monthly Revenue": `$${Math.round(safeNumber(reganRevenue, 0)).toLocaleString()}`,
-        "Annual Revenue": `$${Math.round(safeNumber(reganAnnualRevenue, 0)).toLocaleString()}`,
+        "Annual Revenue": `$${reganAnnualRevenue >= 1000 ? Math.round(reganAnnualRevenue / 1000) + 'K' : Math.round(reganAnnualRevenue)}`,
       };
 
       const metricsHtml = Object.entries(reganMetricsData)
@@ -803,13 +799,13 @@ function updateEmployeeMetrics(inputs, reganEffectiveRate) {
         const merrimentProfitFromEmployee = employeeAnnualRevenue - employeeAnnualSalary;
 
         const employeeMetricsData = {
-          "Employee Billable Hours/Week": `${safeToFixed(employeeBillableHours * employeeCount, 1)}`,
-          "Employee Total Hours/Week": `${safeToFixed(employeeWeeklyHours * employeeCount, 1)}`,
+          "Employee Total Hours/Week": `${(employeeWeeklyHours * employeeCount) % 1 === 0 ? Math.round(employeeWeeklyHours * employeeCount) : safeToFixed(employeeWeeklyHours * employeeCount, 1)}`,
+          "Employee Billable Hours/Week": `${(employeeBillableHours * employeeCount) % 1 === 0 ? Math.round(employeeBillableHours * employeeCount) : safeToFixed(employeeBillableHours * employeeCount, 1)}`,
           "Employee Hourly Rate": `$${Math.round(employeeHourlyRate)}`,
           "Employee Effective Hourly Rate": `$${Math.round(employeeEffectiveRate)}`,
-          "Employee Annual Revenue": `$${Math.round(employeeAnnualRevenue).toLocaleString()}`,
-          "Employee Salary": `$${Math.round(employeeAnnualSalary).toLocaleString()}`,
-          "Merriment Profit from Employee": `$${Math.round(merrimentProfitFromEmployee).toLocaleString()}`,
+          "Employee Annual Revenue": `$${employeeAnnualRevenue >= 1000 ? Math.round(employeeAnnualRevenue / 1000) + 'K' : Math.round(employeeAnnualRevenue)}`,
+          "Employee Salary": `$${employeeAnnualSalary >= 1000 ? Math.round(employeeAnnualSalary / 1000) + 'K' : Math.round(employeeAnnualSalary)}`,
+          "Merriment Profit from Employee": `$${merrimentProfitFromEmployee >= 1000 ? Math.round(merrimentProfitFromEmployee / 1000) + 'K' : Math.round(merrimentProfitFromEmployee)}`,
         };
 
         const employeeHtml = Object.entries(employeeMetricsData)
@@ -913,7 +909,7 @@ function updateGoalProgress() {
       }
     }
 
-    const progressPercentage = Math.min((reganAnnualRevenue / 85000) * 100, 100);
+    const progressPercentage = (reganAnnualRevenue / 85000) * 100;
 
     const $progressFillEl = $("#progressFill");
     if ($progressFillEl.length) {
@@ -924,7 +920,8 @@ function updateGoalProgress() {
     const $progressPercentageEl = $("#progressPercentage");
 
     if ($progressCurrentEl.length) {
-      $progressCurrentEl.text(formatCurrency(reganAnnualRevenue));
+      const formattedRevenue = reganAnnualRevenue >= 1000 ? `${Math.round(reganAnnualRevenue / 1000)}K` : Math.round(reganAnnualRevenue).toString();
+      $progressCurrentEl.text(`$${formattedRevenue}`);
     }
 
     if ($progressPercentageEl.length) {
@@ -1126,6 +1123,7 @@ function updatePackageGoalMetrics() {
     const packagesForGoal = calculatePackagesNeededForGoal();
     const packagesForCapacity = calculatePackagesNeededForCapacity();
 
+    // Update capacity tab elements
     const $avgPriceEl = $("#averagePackagePrice");
     if ($avgPriceEl.length) {
       $avgPriceEl.text(`$${Math.round(averagePrice).toLocaleString()}`);
@@ -1139,6 +1137,23 @@ function updatePackageGoalMetrics() {
     const $packagesCapacityEl = $("#packagesNeededCapacity");
     if ($packagesCapacityEl.length) {
       $packagesCapacityEl.text(`${packagesForCapacity.toFixed(1)}`);
+    }
+
+    // Update package tab elements
+    const $avgPriceEl2 = $("#averagePackagePrice2");
+    if ($avgPriceEl2.length) {
+      $avgPriceEl2.text(`$${Math.round(averagePrice).toLocaleString()}`);
+    }
+
+    const $packagesGoalEl2 = $("#packagesNeededGoal2");
+    if ($packagesGoalEl2.length) {
+      $packagesGoalEl2.text(`${packagesForGoal.toFixed(1)} clients`);
+    }
+
+    const $hoursNeededEl2 = $("#hoursNeeded2");
+    if ($hoursNeededEl2.length) {
+      const hoursNeeded = 85000 / 52 / calculatereganEffectiveRate(getInputValues());
+      $hoursNeededEl2.text(`${hoursNeeded.toFixed(1)} hrs`);
     }
   } catch (error) {
     console.error("Error updating package goal metrics:", error);
@@ -1447,12 +1462,11 @@ $(document).ready(function () {
       try {
         const $billableEl = $("#reganBillableHours");
         const $nonBillableEl = $("#reganNonBillableHours");
-        const $billableRateRadio = $('input[name="billableRate"]:checked');
         
-        if (!$billableEl.length || !$nonBillableEl.length || !$billableRateRadio.length) return;
+        if (!$billableEl.length || !$nonBillableEl.length) return;
         
         const billableHours = parseFloat($billableEl.val()) || 0;
-        const billableRate = parseFloat($billableRateRadio.val()) || 0.8;
+        const billableRate = parseFloat($('#billableRateSlider').val()) / 100 || 0.8;
         
         if (billableRate > 0) {
           const totalWorked = billableHours / billableRate;
@@ -1486,12 +1500,11 @@ $(document).ready(function () {
         const $totalEl = $("#reganTotalHours");
         const $billableEl = $("#reganBillableHours");
         const $nonBillableEl = $("#reganNonBillableHours");
-        const $billableRateRadio = $('input[name="billableRate"]:checked');
         
-        if (!$totalEl.length || !$billableEl.length || !$nonBillableEl.length || !$billableRateRadio.length) return;
+        if (!$totalEl.length || !$billableEl.length || !$nonBillableEl.length) return;
         
         const totalHours = parseFloat($totalEl.val()) || 0;
-        const billableRate = parseFloat($billableRateRadio.val()) || 0.8;
+        const billableRate = parseFloat($('#billableRateSlider').val()) / 100 || 0.8;
         
         const billableHours = totalHours * billableRate;
         const nonBillableHours = totalHours - billableHours;
@@ -1520,9 +1533,13 @@ $(document).ready(function () {
     });
     
     $("#lighthouseHours").on("input change", updatemonthlyLightHouseIncomeFromLighthouseHours);
-    $('input[name="employeeBillable"]').on("change", updateDashboard);
+    $('#employeeBillableSlider').on("input change", function() {
+      $('#employeeBillableValue').text($(this).val() + '%');
+      updateDashboard();
+    });
     
-    $('input[name="billableRate"]').on("change", function() {
+    $('#billableRateSlider').on("input change", function() {
+      $('#billableRateValue').text($(this).val() + '%');
       updateNonBillableHours();
       updateTotalHours();
       updateDashboard();
