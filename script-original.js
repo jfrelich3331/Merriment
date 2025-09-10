@@ -991,10 +991,10 @@ function updatePackageMetrics() {
       const effectiveHourlyRate = hoursCapacityPerMonth > 0 ? totalMonthlyRevenue / hoursCapacityPerMonth : 0;
 
       const packageMetricsData = {
-        "Total Billable Hours": `${hoursCapacityPerMonth.toFixed(1)}/month`,
+        "Total Billable Hours": `${hoursCapacityPerMonth % 1 === 0 ? Math.round(hoursCapacityPerMonth) : hoursCapacityPerMonth.toFixed(1)}/month`,
         "Effective Hourly Rate": `$${Math.round(effectiveHourlyRate)}`,
-        "Monthly Revenue": `$${Math.round(totalMonthlyRevenue).toLocaleString()}`,
-        "Annual Revenue": `$${Math.round(annualRevenue).toLocaleString()}`,
+        "Monthly Revenue": `$${Math.round(totalMonthlyRevenue) >= 1000 ? Math.round(totalMonthlyRevenue / 1000) + 'K' : Math.round(totalMonthlyRevenue)}`,
+        "Annual Revenue": `$${Math.round(annualRevenue) >= 1000 ? Math.round(annualRevenue / 1000) + 'K' : Math.round(annualRevenue)}`,
       };
 
       const packageHtml = Object.entries(packageMetricsData)
@@ -1094,17 +1094,17 @@ function updatePackageAnalysis() {
         </div>
 
         <div class="metric-card" id="${generateMetricId('Hours Used', 'utility')}">
-          <div class="metric-value">${hoursCapacityUsed.toFixed(1)} / ${totalAvailableHours.toFixed(1)}</div>
+          <div class="metric-value">${hoursCapacityUsed % 1 === 0 ? Math.round(hoursCapacityUsed) : hoursCapacityUsed.toFixed(1)} / ${totalAvailableHours % 1 === 0 ? Math.round(totalAvailableHours) : totalAvailableHours.toFixed(1)}</div>
           <div class="metric-label">Hours Used</div>
         </div>
 
         <div class="metric-card" id="${generateMetricId('Utilization', 'utility')}">
-          <div class="metric-value">${utilizationPercent.toFixed(1)}%</div>
+          <div class="metric-value">${utilizationPercent % 1 === 0 ? Math.round(utilizationPercent) : utilizationPercent.toFixed(1)}%</div>
           <div class="metric-label">Utilization</div>
         </div>
 
         <div class="metric-card" id="${generateMetricId('Remaining Hours', 'utility')}">
-          <div class="metric-value"><div style="color: ${remainingHours >= 0 ? "#059669" : "#dc2626"};"> ${remainingHours.toFixed(1)}</div></div>
+          <div class="metric-value"><div style="color: ${remainingHours >= 0 ? "#059669" : "#dc2626"};"> ${remainingHours % 1 === 0 ? Math.round(remainingHours) : remainingHours.toFixed(1)}</div></div>
           <div class="metric-label">Remaining Hours</div>
         </div>
       `;
@@ -1138,6 +1138,15 @@ function updatePackageGoalMetrics() {
     if ($packagesCapacityEl.length) {
       $packagesCapacityEl.text(`${packagesForCapacity.toFixed(1)}`);
     }
+
+    // Check if user has adjusted capacity settings (Regan's total hours or employee count)
+    const inputs = getInputValues();
+    const $employeeCountRadio = $('input[name="employeeCount"]:checked');
+    const employeeCount = $employeeCountRadio.length ? parseFloat($employeeCountRadio.val()) : 0;
+    const hasCapacityAdjustments = inputs.reganTotalHours > 0 || employeeCount > 0;
+
+    // Show/hide the "Clients needed for selections" metric row
+    $(".capacity-clients-needed-selection").toggle(hasCapacityAdjustments);
 
     // Update package tab elements
     const $avgPriceEl2 = $("#averagePackagePrice2");

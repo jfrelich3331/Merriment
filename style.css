@@ -303,7 +303,7 @@ select {
 
 /* Utility classes */
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .progress-fill-initial {
