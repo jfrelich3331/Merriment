@@ -1,10 +1,357 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Document</title>
-</head>
-<body>
-  
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Merriment Business Financial Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <div class="dashboard">
+      <div class="header">
+        <img width="250" src="https://merrimentaba.com/wp-content/uploads/2023/10/Merriment-Horizontal-Logo.svg" alt="Merriment ABA" />
+        <h1>Merriment Business Dashboard</h1>
+
+        <div style="text-align: center">
+          <div style="display: inline-flex; background-color: #ddd; border-radius: 6px; padding: 4px">
+            <button id="fullCapacityBtn" class="mode-btn active" onclick="switchMode('fullCapacity')" style="padding: 8px 16px; border: none; border-radius: 4px; background-color: #3b82f6; color: white; cursor: pointer; font-weight: 500">Capacity Mode</button>
+            <button id="packageModeBtn" class="mode-btn" onclick="switchMode('package')" style="padding: 8px 16px; border: none; border-radius: 4px; background-color: transparent; color: #374151; cursor: pointer; font-weight: 500">Sales Mode</button>
+          </div>
+
+          <button class="config-button" onclick="openPackageConfig()">Configure Services & Packages</button>
+        </div>
+      </div>
+      <!-- Package Configuration Modal -->
+      <div id="configModal" class="modal-overlay">
+        <div class="modal">
+          <div id="packageConfigContainer">
+            <!-- Package configurations will be dynamically generated here -->
+          </div>
+          <div class="modal-buttons">
+            <button class="btn-reset" onclick="resetToDefaults()">Reset to Defaults</button>
+            <button class="btn-cancel" onclick="closePackageConfig()">Cancel</button>
+            <button class="btn-save" onclick="savePackageConfig()">Save Changes</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <div class="sidebar">
+          <div class="input-section regan-weekly-hours">
+            <h3>Regan's Weekly Hours</h3>
+            <div class="input-wrapper">
+              <div class="input-group" class="input-hours">
+                <label>Weekly Capacity Hours</label>
+                <input type="text" id="hoursCapacity" value="40" min="0" max="80" class="readonly-input" />
+              </div>
+
+              <div id="merriment-hours-container">
+                <div class="input-group" class="input-hours">
+                  <label>Weekly W2 Hours</label>
+                  <input type="text" id="lighthouseHours" value="0" min="0" max="40" />
+                  <div class="small-text" style="display: none">Max 40 hours (salary calculated proportionally)</div>
+                </div>
+                <div class="input-group" class="input-hours">
+                  <label>Merriment (Total)</label>
+                  <input type="text" id="reganTotalHours" value="5" min="0" max="40" />
+                </div>
+                <div class="input-group" class="input-hours">
+                  <label>Merriment (Billable)</label>
+                  <input type="text" id="reganBillableHours" value="0" min="0" max="40" />
+                </div>
+                <div class="input-group" class="input-hours">
+                  <label>Merriment (Non-billable)</label>
+                  <input type="text" id="reganNonBillableHours" value="0" min="0" max="40" class="readonly-input" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="input-section regan-salary">
+            <h3>Regan's W2 Salary</h3>
+            <div class="input-wrapper">
+              <div class="input-group">
+                <label>Yearly</label>
+                <input type="text" id="currentAnnualIncome" value="$85,000" class="readonly-input" readonly />
+              </div>
+              <div class="input-group">
+                <label>Monthly</label>
+                <input type="text" id="monthlyLightHouseIncome" value="$85,000" class="readonly-input" readonly />
+              </div>
+              <div class="input-group">
+                <label>Fixed</label>
+                <input type="text" id="yearlyIncomeFixed" value="$85,000" class="readonly-input" readonly />
+              </div>
+            </div>
+          </div>
+
+          <div class="input-section package-sales" id="packageSalesSection">
+            <h3>Package Sales</h3>
+            <div id="packageSalesInputs">
+              <!-- Dynamically populated based on configured packages -->
+            </div>
+          </div>
+
+          <div class="input-section billable-section">
+            <div class="input-group">
+              <h3>Billable Percentage</h3>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="billableRate" value="0.3" />
+                  <span>30%</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="billableRate" value="0.4" />
+                  <span>40%</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="billableRate" value="0.5" />
+                  <span>50%</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="billableRate" value="0.6" />
+                  <span>60%</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="billableRate" value="0.7" />
+                  <span>70%</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="billableRate" value="0.8" checked />
+                  <span>80% </span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="billableRate" value="0.9" />
+                  <span>90%</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="billableRate" value="1" />
+                  <span>100%</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="input-section employee-section">
+            <h3>Employee Scenarios</h3>
+            <div class="input-group">
+              <label>Number of Employees</label>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="employeeCount" value="0" checked />
+                  <span>0</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="employeeCount" value="0.5" />
+                  <span>0.5</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="employeeCount" value="1" />
+                  <span>1</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="employeeCount" value="2" />
+                  <span>2</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="employeeCount" value="3" />
+                  <span>3</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="employeeCount" value="4" />
+                  <span>4</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="employeeCount" value="5" />
+                  <span>5</span>
+                </label>
+              </div>
+            </div>
+            <div class="input-group employee-hourly-rate" style="display: none">
+              <label>Employee Hourly Rate</label>
+              <input type="number" id="employeeRate" value="35" min="20" step="1" />
+            </div>
+
+            <div class="input-group employee-billable" style="display: none">
+              <label>Employee Billable %</label>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="employeeBillable" value="0.5" />
+                  <span>50% - New Employee</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="employeeBillable" value="0.75" />
+                  <span>75% - Experienced</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="employeeBillable" value="0.85" checked />
+                  <span>85% - Average</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="employeeBillable" value="1.0" />
+                  <span>100% - Optimal</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="results-area">
+          <div class="sidebar-right">
+            <div id="goalSection">
+              <div class="progress-container">
+                <h3>Goal Tracker</h3>
+                <p style="margin-bottom: 8px; font-size: 14px">Goal: Replace W2 salary with Merriment Income</p>
+                <div class="progress-bar">
+                  <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text">
+                  <span><span id="progressCurrent">$0</span>/$85,000</span>
+                  <span id="progressPercentage">0%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="capacity-tab">
+            <!-- Add this HTML above your hoursNeededWrapper div -->
+            <div id="packageGoalMetrics">
+              <div>
+                <!-- Average Package Price -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
+                  <span style="font-weight: 500; color: #374151; font-size: 13px">Average Monthly Package Price:</span>
+                  <span id="averagePackagePrice" style="font-weight: 600; color: #1f2937">$0</span>
+                </div>
+
+                <!-- Packages Needed for Goal -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
+                  <span style="font-weight: 500; color: #374151; font-size: 13px">Average Clients needed for $85k:</span>
+                  <span id="packagesNeededGoal" style="font-weight: 600">0 clients</span>
+                </div>
+
+                <!-- Packages Needed for Goal -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
+                  <span style="font-weight: 500; color: #374151; font-size: 13px">Billable hrs/week needed:</span>
+                  <span id="hoursNeeded">16.7 hrs</span>
+                </div>
+
+                <!-- Packages Needed for Billable Hour Capacity -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
+                  <span style="font-weight: 500; color: #374151; font-size: 13px">Clients needed for selections:</span>
+                  <span id="packagesNeededCapacity" style="font-weight: 600">0 clients</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="section" id="merrimentSection">
+              <h3>Regan's Stats</h3>
+              <div class="metric-grid" id="reganMetrics">
+                <!-- Populated by JavaScript -->
+              </div>
+            </div>
+            <div class="section">
+              <h3>Growth Scenarios</h3>
+              <table class="table" id="growthTable">
+                <thead>
+                  <tr>
+                    <th>Scenario</th>
+                    <th>W2 %</th>
+                    <th>Merriment %</th>
+                    <th>W2 Weekly Hours</th>
+                    <th>Merriment Weekly Hours</th>
+                    <th>Merriment Weekly Billable Hours</th>
+                    <th>Weekly Total Hours - Not Billable</th>
+                    <th>W2 Annual Revenue</th>
+                    <th>Merriment Annual Revenue</th>
+                    <th>Combined Annual Revenue</th>
+                  </tr>
+                </thead>
+                <tbody id="growthTableBody">
+                  <!-- Populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="package-tab">
+            <div id="packageGoalMetrics">
+              <div>
+                <!-- Average Package Price -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
+                  <span style="font-weight: 500; color: #374151; font-size: 13px">Average Monthly Package Price:</span>
+                  <span id="averagePackagePrice2" style="font-weight: 600; color: #1f2937">$0</span>
+                </div>
+
+                <!-- Packages Needed for Goal -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
+                  <span style="font-weight: 500; color: #374151; font-size: 13px">Average sales needed for $85k goal:</span>
+                  <span id="packagesNeededGoal2" style="font-weight: 600">0 clients</span>
+                </div>
+
+                <!-- Packages Needed for Goal -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background-color: #f8fafc; border-radius: 6px">
+                  <span style="font-weight: 500; color: #374151; font-size: 13px">Billable hrs/week needed:</span>
+                  <span id="hoursNeeded2">16.7 hrs</span>
+                </div>
+              </div>
+            </div>
+            <div class="section" id="packageMetricsSection">
+              <h3>Merriment Sales Stats</h3>
+              <div class="metric-grid" id="packageMetrics"><!-- Populated by JavaScript --></div>
+            </div>
+            <div class="section packages-section" id="utilitySection">
+              <div class="package-grid" id="utilityAnalysis"><!-- Populated by JavaScript --></div>
+            </div>
+            <div class="section packages-section" id="packagesSection">
+              <h3>Packages</h3>
+              <div class="package-grid" id="packageAnalysis"><!-- Populated by JavaScript --></div>
+            </div>
+
+            <div class="section">
+              <h3>Sales Scenarios</h3>
+              <table class="table" id="salesTable">
+                <thead>
+                  <tr>
+                    <th>Scenario</th>
+                    <th>Merriment Weekly Hours</th>
+                    <th>Merriment Weekly Billable Hours</th>
+                    <th>Weekly Total Hours - Not Billable</th>
+                    <th>Total Billable Hours</th>
+                    <th>Effective Hourly Rate</th>
+                    <th>Merriment Annual Revenue</th>
+                  </tr>
+                </thead>
+                <tbody id="salesTableBody">
+                  <!-- Populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="section employee-section">
+            <h3>Employee Impact Analysis</h3>
+            <table class="table" id="employeeTable">
+              <thead>
+                <tr>
+                  <th>Employees</th>
+                  <th>Total Capacity (hrs/week)</th>
+                  <th>Monthly Revenue</th>
+                  <th>Employee Costs</th>
+                  <th>Net Profit</th>
+                  <th>ROI</th>
+                </tr>
+              </thead>
+              <tbody id="employeeTableBody">
+                <!-- Populated by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
 </html>
+>>>>>>> 75e5e4f (jason 1st push)
